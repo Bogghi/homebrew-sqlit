@@ -1,0 +1,27 @@
+name: Bump sqlit
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update formula from PyPI
+        run: |
+          json=$(curl -fsS https://pypi.org/pypi/sqlit-tui/json)
+          version=$(jq -r .info.version <<<"$json")
+          url=$(jq -r '.urls[] | select(.packagetype=="sdist") | .url' <<<"$json")
+          sha=$(jq -r '.urls[] | select(.packagetype=="sdist") | .digests.sha256' <<<"$json")
+          sed -i -E "s|^  url \".*\"|  url \"$url\"|; s|^  sha256 \".*\"|  sha256 \"$sha\"|" Formula/sqlit.rb
+          if git diff --quiet; then echo "up to date ($version)"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "sqlit $version"
+          git push
