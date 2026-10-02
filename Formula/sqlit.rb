@@ -10,7 +10,7 @@ class Sqlit < Formula
   def install
     # Prebuilt wheels: the dependency tree includes pyarrow, which is impractical to build from source.
     venv = libexec
-    system Formula["python@3.13"].opt_bin/"python3.13", "-m", "venv", venv
+    system formula_opt_bin("python@3.13")/"python3.13", "-m", "venv", venv
     system venv/"bin/pip", "install", "--no-cache-dir", buildpath
     bin.install_symlink venv/"bin/sqlit"
   end
