@@ -1,6 +1,4 @@
 class Sqlit < Formula
-  include Language::Python::Virtualenv
-
   desc "User-friendly TUI for SQL databases"
   homepage "https://github.com/Maxteabag/sqlit"
   url "https://files.pythonhosted.org/packages/70/39/c84577fdade8a260ad1b7396ce3eba53e6404ca31df45d86c557e0978417/sqlit_tui-1.6.4.tar.gz"
@@ -10,7 +8,11 @@ class Sqlit < Formula
   depends_on "python@3.13"
 
   def install
-    virtualenv_install_with_resources
+    # Prebuilt wheels: the dependency tree includes pyarrow, which is impractical to build from source.
+    venv = libexec
+    system Formula["python@3.13"].opt_bin/"python3.13", "-m", "venv", venv
+    system venv/"bin/pip", "install", "--no-cache-dir", buildpath
+    bin.install_symlink venv/"bin/sqlit"
   end
 
   test do
